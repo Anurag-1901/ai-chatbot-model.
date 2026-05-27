@@ -1,15 +1,14 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import os
+from dotenv import load_dotenv
 from openai import OpenAI
 
-# Initialize FastAPI
-app = FastAPI()
+load_dotenv()
 
-# Initialize OpenAI client with your API key from environment variables
+app = FastAPI()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# Request model
 class ChatRequest(BaseModel):
     question: str
 
@@ -19,12 +18,8 @@ def read_root():
 
 @app.post("/chat")
 def chat_endpoint(request: ChatRequest):
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",   # lightweight model for testing
-            messages=[{"role": "user", "content": request.question}]
-        )
-        answer = response.choices[0].message.content
-        return {"answer": answer}
-    except Exception as e:
-        return {"error": str(e)}
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": request.question}]
+    )
+    return {"answer": response.choices[0].message.content}
